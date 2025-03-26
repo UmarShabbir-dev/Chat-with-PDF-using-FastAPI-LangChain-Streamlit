@@ -1,8 +1,8 @@
 import tempfile
-from langchain.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 from openai import OpenAI
 from langchain.llms import OpenAI as LangOpenAI
 from langchain.chains import RetrievalQA
@@ -22,7 +22,9 @@ def save_pdf_and_load(file_bytes):
     docs = split_documents(documents)
     
     db = embed_store_chunks(docs)
-    return db
+
+    qa_chain = process_model(db)
+    return qa_chain
 
 def split_documents(documents):
     splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200) # overlap 200 characters with previous chunk
@@ -40,3 +42,6 @@ def process_model(db):
     retriever = db.as_retriever()
     qa = RetrievalQA.from_chain_type(llm=llm, retriever=retriever)
     return qa
+
+def get_answer(qa_chain, query: str) -> str:
+    return qa_chain.run(query)
