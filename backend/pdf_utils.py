@@ -1,7 +1,8 @@
 import tempfile
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import CharacterTextSplitter
-
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.vectorstores import FAISS
 
 def save_pdf_and_load(file_bytes):
     with tempfile.NamedTemporaryFile(delete=False, suffix='pdf') as tmp: 
@@ -11,10 +12,17 @@ def save_pdf_and_load(file_bytes):
     loader = PyPDFLoader(tmp_path)
     documents = loader.load()
     docs = split_documents(documents)
-    return docs
+    
+    db = embed_store_chunks(docs)
+    return db
 
 def split_documents(documents):
     splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200) # overlap 200 characters with previous chunk
     docs = splitter.split_documents(documents)
     return docs
 
+
+def embed_store_chunks(documents):
+    embeddings = HuggingFaceEmbeddings()
+    db = FAISS.from_documents(documents,embeddings)
+    return db
