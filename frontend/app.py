@@ -9,7 +9,7 @@ st.markdown("Upload a PDF and ask a question")
 pdf_file = st.file_uploader("Upload your PDF", type=["pdf"])
 
 if pdf_file:
-    with st.spinner("Uploading and Processing PDF...")
+    with st.spinner("Uploading and Processing PDF..."):
         files = {"file": (pdf_file.name,pdf_file,"application/pdf")}
         res = requests.post("http://localhost:8000/upload/",files=files)
         if res.status_code == 200:
